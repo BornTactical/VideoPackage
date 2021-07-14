@@ -1,0 +1,12 @@
+uses
+	CtrlLib,
+	VideoPackage,
+	GLCtrl;
+
+file
+	VideoCtrl.h,
+	VideoCtrl.cpp;
+
+mainconfig
+	"" = "GUI";
+
