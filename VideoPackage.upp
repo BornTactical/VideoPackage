@@ -1,0 +1,14 @@
+uses
+	Core,
+	AudioPackage;
+
+library
+	"avcodec avformat avutil swscale swresample";
+
+file
+	VideoPackage.h,
+	VideoPackage.cpp;
+
+mainconfig
+	"" = "";
+
