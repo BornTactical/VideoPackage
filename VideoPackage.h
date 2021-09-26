@@ -8,7 +8,8 @@ using namespace Upp;
 
 extern "C" {
 	#include <libavcodec/avcodec.h>
-	#include <libavformat/avformat.h>
+    #include <libavformat/avformat.h>
+    #include <libavfilter/avfilter.h>
 	#include <libavutil/avutil.h>
 	#include <libavutil/imgutils.h>
 	#include <libavutil/time.h>
@@ -285,10 +286,6 @@ public:
 	~ScalerContext();
 };
 
-class VolumeFilter {
-	
-};
-
 class ResamplerContext {
 	SwrContext* ctx { nullptr };
 	
@@ -330,8 +327,8 @@ class MediaDecoder {
 	bool		  isStopped     { true  };
 	Atomic        running       { false };
 	
-	Mutex         audioMutex;
-	Mutex         videoMutex;
+	RWMutex         audioMutex;
+	RWMutex         videoMutex;
 	Thread        t;
 	Size          videoSize;
 	AVPixelFormat pixFmt;

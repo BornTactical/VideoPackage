@@ -430,7 +430,8 @@ void MediaDecoder::Close() {
 void MediaDecoder::DoDispatch() {
     dropnext:
     if(vq.GetCount() > 0) {
-        INTERLOCKED_(videoMutex) {
+        {
+            videoMutex.EnterRead();
             MediaFrame& vf = vq.Tail();
             
             if(vf.TS() <= timer.TS()) {
@@ -445,18 +446,18 @@ void MediaDecoder::DoDispatch() {
                     vq.DropTail();
                 }
             }
+            videoMutex.LeaveRead();
         }
     }
 }
 
 void MediaDecoder::DoDispatch2() {
     if(aq.GetCount() > 0) {
-        INTERLOCKED_(audioMutex) {
-            MediaFrame& af = aq.Tail();
-            
-            WhenAudioFrame(af);
-            aq.DropTail();
-        }
+        audioMutex.EnterRead();
+        MediaFrame& af = aq.Tail();
+        WhenAudioFrame(af);
+        aq.DropTail();
+        audioMutex.LeaveRead();
     }
 }
 
@@ -491,14 +492,14 @@ void MediaDecoder::DoDecode() {
         f.streamIndex = packet.StreamIndex();
 
         if(packet.StreamIndex() == bestVideo) {
-            INTERLOCKED_(videoMutex) {
-                vq.AddHead(pick(f));
-            }
+            videoMutex.EnterWrite();
+            vq.AddHead(pick(f));
+            videoMutex.LeaveWrite();
         }
         else if(packet.StreamIndex() == bestAudio) {
-             INTERLOCKED_(audioMutex) {
-                aq.AddHead(pick(f));
-            }
+            audioMutex.EnterWrite();
+            aq.AddHead(pick(f));
+            audioMutex.LeaveWrite();
         }
         
         packet.Drop();
